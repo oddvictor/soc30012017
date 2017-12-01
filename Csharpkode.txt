@@ -1,0 +1,118 @@
+using System;
+using System.Collections.Generic;
+using System.ComponentModel;
+using System.Data;
+using System.Drawing;
+using System.Linq;
+using System.Text;
+using System.Threading.Tasks;
+using System.Windows.Forms;
+using System.Threading;
+using System.Net;
+using System.Net.Sockets;
+
+
+namespace RatKiller2017
+{
+    public partial class Form1 : Form
+    {
+        
+        public string strRecievedUDPMessage;
+        public void DoReciveUDP()
+
+        {
+            UdpClient sock = new UdpClient(9050);
+            IPEndPoint iep = new IPEndPoint(IPAddress.Any, 0);
+            
+            while (true)
+            {
+                try
+                {
+                    byte[] data = sock.Receive(ref iep);
+                    strRecievedUDPMessage = Encoding.ASCII.GetString(data, 0, data.Length);
+                    this.Invoke(new EventHandler(this.UdpDataRecieved));
+                }
+                catch (Exception e) { }
+            }
+            sock.Close();
+        }
+        public void UdpDataRecieved(object sender, EventArgs e)
+        {
+            string temp = strRecievedUDPMessage.Split(',')[1];
+            string antallrotter = strRecievedUDPMessage.Split(',')[2];
+            string instilling = strRecievedUDPMessage.Split(',')[3];
+           
+            textBox1.Text = temp;
+            textBox2.Text = antallrotter;
+            textBox3.Text = instilling;
+
+            int rotter = Int32.Parse(antallrotter);
+            while (rotter > 4)
+            {
+                textBox4.Text = "Felle er full og må tømmes!";
+            }
+        }
+
+        private Thread workerThread;
+        
+        private void Form1_Load(object sender, EventArgs e)
+        {
+            workerThread = new Thread(this.DoReciveUDP);
+            workerThread.IsBackground = true;
+            workerThread.Start();
+        }
+
+        public Form1()
+        {
+            InitializeComponent();
+        }
+
+        private void button2_Click(object sender, EventArgs e)
+        {
+            byte[] data = new byte[1024];
+
+            IPEndPoint ipep = new IPEndPoint(IPAddress.Parse("192.168.0.16"), 9050);
+            Socket server = new Socket(AddressFamily.InterNetwork, SocketType.Dgram, ProtocolType.Udp);
+
+            string sendeString = "0";
+
+            data = Encoding.ASCII.GetBytes(sendeString);
+            server.SendTo(data, data.Length, SocketFlags.None, ipep); 
+        }
+
+        private void label3_Click(object sender, EventArgs e)
+        {
+
+        }
+
+        private void label5_Click(object sender, EventArgs e)
+        {
+
+        }
+
+        private void textBox1_TextChanged(object sender, EventArgs e)
+        {
+
+        }
+        private void Form1_Load_1(object sender, EventArgs e)
+        {
+          
+        }
+
+        private void button1_Click(object sender, EventArgs e)
+        {
+            byte[] data = new byte[1024];
+            
+            IPEndPoint ipep = new IPEndPoint(IPAddress.Parse("192.168.0.16"), 9050);
+            Socket server = new Socket(AddressFamily.InterNetwork, SocketType.Dgram,ProtocolType.Udp);
+
+            string sendeString = "1";
+            
+            data = Encoding.ASCII.GetBytes(sendeString);
+            server.SendTo(data, data.Length, SocketFlags.None, ipep);
+
+
+            
+        }
+    }
+}
